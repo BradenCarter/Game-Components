@@ -24,24 +24,38 @@ public static class UIHelpers
         );
     }
 
-    public static Transform SearchForChild(this Transform target, string name)
+
+    public static bool AlmostEquals(this float float1, float float2, int precision = 2)
     {
-        for (int i = 0; i < target.childCount; ++i)
+        float epsilon = Mathf.Pow(10.0f, -precision);
+        return (Mathf.Abs(float1 - float2) <= epsilon);
+    }
+
+    public static float NormalizeBetween(this float float1, float min, float max)
+    {
+        return Mathf.Clamp01((float1 - min) / (max - min));
+    }
+
+    public static float NormalizeBetween(this int number, int min, int max)
+    {
+        return Mathf.Clamp01((float)(number - min) / (float)(max - min));
+    }
+
+    public static List<T> Shuffle<T>(this IList<T> list)
+    {
+        System.Random rand = new System.Random();
+        int n = list.Count;
+        while (n > 1)
         {
-            if (target.GetChild(i).name == name) return target.GetChild(i);
-            var result = SearchForChild(target.GetChild(i), name);
-            if (result != null) return result;
+            n--;
+            int k = rand.Next(n + 1);
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
         }
-
-        return null;
+        return list;
     }
 
-    public static Toggle GetActive(this ToggleGroup aGroup)
-    {
-        IEnumerator<Toggle> toggleEnum = aGroup.ActiveToggles().GetEnumerator();
-        toggleEnum.MoveNext();
-        return toggleEnum.Current;
-    }
 
     public static string FormatToGameString(this TimeSpan time)
     {
@@ -72,6 +86,27 @@ public static class UIHelpers
         }
         return formattedString;
     }
+
+    #region Unity Specific
+    public static Transform SearchForChild(this Transform target, string name)
+    {
+        for (int i = 0; i < target.childCount; ++i)
+        {
+            if (target.GetChild(i).name == name) return target.GetChild(i);
+            var result = SearchForChild(target.GetChild(i), name);
+            if (result != null) return result;
+        }
+
+        return null;
+    }
+
+    public static Toggle GetActive(this ToggleGroup aGroup)
+    {
+        IEnumerator<Toggle> toggleEnum = aGroup.ActiveToggles().GetEnumerator();
+        toggleEnum.MoveNext();
+        return toggleEnum.Current;
+    }
+
 
     public static Vector2 WorldToCanvas(this Canvas canvas, Vector3 world_position, bool keepOnScreen = false, Camera camera = null)
     {
@@ -175,36 +210,6 @@ public static class UIHelpers
         return imageTransform.sizeDelta;
     }
 
-    public static bool AlmostEquals(this float float1, float float2, int precision = 2)
-    {
-        float epsilon = Mathf.Pow(10.0f, -precision);
-        return (Mathf.Abs(float1 - float2) <= epsilon);
-    }
-
-    public static float NormalizeBetween(this float float1, float min, float max)
-    {
-        return Mathf.Clamp01((float1 - min) / (max - min));
-    }
-
-    public static float NormalizeBetween(this int number, int min, int max)
-    {
-        return Mathf.Clamp01((float)(number - min) / (float)(max - min));
-    }
-
-    public static List<T> Shuffle<T>(this IList<T> list)
-    {
-        System.Random rand = new System.Random();
-        int n = list.Count;
-        while (n > 1)
-        {
-            n--;
-            int k = rand.Next(n + 1);
-            T value = list[k];
-            list[k] = list[n];
-            list[n] = value;
-        }
-        return list;
-    }
 
     public static void ShowAndBlock(this CanvasGroup cGroup)
     {
@@ -219,18 +224,9 @@ public static class UIHelpers
         cGroup.interactable = false;
         cGroup.blocksRaycasts = false;
     }
-
-    public static int GetStoreItemLevel(this StoreItem item)
-    {
-        CatalogItem cItem = StoreManager.Instance.GetCatalogItem(item.ItemId);
-        Dictionary<string, object> cData = PlayFabSimpleJson.DeserializeObject<Dictionary<string, object>>(cItem.CustomData);
-        if (cData.ContainsKey("reqLevel") == false)
-            Debug.Log(item.ItemId);
-        return int.Parse(cData["reqLevel"].ToString());
-    }
-}
-
+    #endregion Unity Specific
     #endregion Extension Methods
+
 
     public static Type GetAssemblyType(string typeName)
     {
