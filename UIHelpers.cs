@@ -9,8 +9,6 @@ using UnityEngine.UI;
 
 public static class UIHelpers
 {
-    public static bool LaunchedCardFromMainMenu = false;
-
     #region Extension Methods
 
     public static string SplitCamelCase(this string str)
@@ -193,7 +191,7 @@ public static class UIHelpers
         return Mathf.Clamp01((float)(number - min) / (float)(max - min));
     }
 
-    public static List<T> Shuffle<T>(this List<T> list)
+    public static List<T> Shuffle<T>(this IList<T> list)
     {
         System.Random rand = new System.Random();
         int n = list.Count;
@@ -206,16 +204,6 @@ public static class UIHelpers
             list[n] = value;
         }
         return list;
-    }
-
-    public static Enums.CurrencyType GetCurrencyTypeOfStoreItem(PlayFab.ClientModels.StoreItem item)
-    {
-        if (item.VirtualCurrencyPrices != null)
-        {
-            if (item.VirtualCurrencyPrices.ContainsKey("GL"))
-                return Enums.CurrencyType.GL;
-        }
-        return Enums.CurrencyType.IAP;
     }
 
     public static void ShowAndBlock(this CanvasGroup cGroup)
@@ -240,18 +228,6 @@ public static class UIHelpers
             Debug.Log(item.ItemId);
         return int.Parse(cData["reqLevel"].ToString());
     }
-
-    public static void Shuffle<T>(this IList<T> list)  
-    {
-        System.Random rng = new System.Random();
-        int n = list.Count;  
-        while (n > 1) {  
-        n--;
-        int k = rng.Next(n + 1);  
-        T value = list[k];  
-        list[k] = list[n];  
-        list[n] = value;  
-    }  
 }
 
     #endregion Extension Methods
